@@ -12,24 +12,17 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Bienvenue !',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
+            Text('Bienvenue !', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/login'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-              ),
+              style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
               child: Text('Se connecter'),
             ),
             SizedBox(height: 20),
             OutlinedButton(
               onPressed: () => Navigator.pushNamed(context, '/signup'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: Size(double.infinity, 50),
-              ),
+              style: OutlinedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
               child: Text('S’inscrire'),
             ),
           ],

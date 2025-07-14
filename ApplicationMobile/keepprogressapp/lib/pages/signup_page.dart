@@ -68,37 +68,25 @@ class _SignupPageState extends State<SignupPage> {
           key: _formKey,
           child: ListView(
             children: [
-              if (_errorMessage != null)
-                Text(_errorMessage!, style: TextStyle(color: Colors.red)),
+              if (_errorMessage != null) Text(_errorMessage!, style: TextStyle(color: Colors.red)),
               TextFormField(
                 controller: _nomController,
-                decoration: InputDecoration(
-                  labelText: 'Nom',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Nom', border: OutlineInputBorder()),
                 validator: (value) => value!.isEmpty ? 'Entrez un nom' : null,
               ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _ageController,
-                decoration: InputDecoration(
-                  labelText: 'Âge',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Âge', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value!.isEmpty ? 'Entrez votre âge' : null,
+                validator: (value) => value!.isEmpty ? 'Entrez votre âge' : null,
               ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value != null && value.contains('@')
-                    ? null
-                    : 'Email invalide',
+                decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                validator: (value) =>
+                    value != null && value.contains('@') ? null : 'Email invalide',
               ),
               SizedBox(height: 20),
               TextFormField(
@@ -108,16 +96,12 @@ class _SignupPageState extends State<SignupPage> {
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
-                validator: (value) =>
-                    value!.length < 6 ? 'Mot de passe trop court' : null,
+                validator: (value) => value!.length < 6 ? 'Mot de passe trop court' : null,
               ),
               SizedBox(height: 30),
               _isLoading
                   ? Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: _register,
-                      child: Text('Créer un compte'),
-                    ),
+                  : ElevatedButton(onPressed: _register, child: Text('Créer un compte')),
             ],
           ),
         ),

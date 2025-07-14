@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keepprogressapp/pages/forgot_password_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
+        '/forgot_password_page': (context) => ForgotPasswordPage(),
       },
     );
   }

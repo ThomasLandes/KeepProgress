@@ -27,9 +27,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = false);
 
       if (success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Connexion réussie')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Connexion réussie')));
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(
@@ -53,13 +51,9 @@ class _LoginPageState extends State<LoginPage> {
               // Email
               TextFormField(
                 controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) => value != null && value.contains('@')
-                    ? null
-                    : 'Email invalide',
+                decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                validator: (value) =>
+                    value != null && value.contains('@') ? null : 'Email invalide',
               ),
               SizedBox(height: 20),
 
@@ -71,9 +65,8 @@ class _LoginPageState extends State<LoginPage> {
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
-                validator: (value) => value != null && value.length >= 6
-                    ? null
-                    : 'Mot de passe trop court',
+                validator: (value) =>
+                    value != null && value.length >= 6 ? null : 'Mot de passe trop court',
               ),
 
               // Lien mot de passe oublié
@@ -81,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/forgot-password');
+                    Navigator.pushNamed(context, '/forgot_password_page');
                   },
                   child: Text('Mot de passe oublié ?'),
                 ),
@@ -92,9 +85,7 @@ class _LoginPageState extends State<LoginPage> {
               // Bouton connexion
               ElevatedButton(
                 onPressed: _isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                ),
+                style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
                 child: _isLoading
                     ? CircularProgressIndicator(color: Colors.white)
                     : Text('Se connecter'),
