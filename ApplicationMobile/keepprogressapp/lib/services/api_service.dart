@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:keepprogressapp/models/session_model.dart';
 import 'package:keepprogressapp/models/user_model.dart';
 
 class ApiService {
@@ -87,14 +88,12 @@ class ApiService {
   ///GET USER BY ID///
   ////////////////////
   static Future<User?> getUserById(int userId) async {
-    return User(nom: "Test", age: 15, email: "test@gmail.fr");
     final url = Uri.parse(baseUrl);
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
-        //return jsonDecode(response.body);
-        return null;
+        return jsonDecode(response.body);
       } else {
         return null;
       }
@@ -102,5 +101,33 @@ class ApiService {
       debugPrint('Erreur getUserById: $e');
       return null;
     }
+  }
+
+  static Future<List<Session>> fetchSessions(int userId) async {
+    final url = Uri.parse(baseUrl);
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as List;
+      return data.map((e) => Session.fromJson(e)).toList();
+    } else {
+      throw Exception("Erreur chargement séances");
+    }
+  }
+
+  static Future<bool> addSession(int userId, Session session) async {
+    final url = Uri.parse(baseUrl);
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(session.toJson()),
+    );
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> deleteSession(int sessionId) async {
+    final url = Uri.parse(baseUrl);
+    final response = await http.delete(url);
+    return response.statusCode == 200;
   }
 }
