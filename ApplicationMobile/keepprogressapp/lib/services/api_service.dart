@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:keepprogressapp/models/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://webhook.site/f8572790-5cee-43ab-9509-936c56c458e9';
+  static const String baseUrl = 'https://webhook.site/89c7b01d-0891-4ce5-a2d4-60029a15c040';
 
   ////////////
   //REGISTER//
@@ -62,6 +63,9 @@ class ApiService {
     }
   }
 
+  /////////////////////
+  ///FORGOT PASSWORD///
+  /////////////////////
   static Future<bool> forgotPassword(String email) async {
     final url = Uri.parse(baseUrl);
 
@@ -76,6 +80,27 @@ class ApiService {
     } catch (e) {
       debugPrint("Erreur forgotPassword: $e");
       return false;
+    }
+  }
+
+  ////////////////////
+  ///GET USER BY ID///
+  ////////////////////
+  static Future<User?> getUserById(int userId) async {
+    return User(nom: "Test", age: 15, email: "test@gmail.fr");
+    final url = Uri.parse(baseUrl);
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        //return jsonDecode(response.body);
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erreur getUserById: $e');
+      return null;
     }
   }
 }

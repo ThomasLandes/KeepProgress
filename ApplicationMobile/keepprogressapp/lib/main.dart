@@ -1,15 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:keepprogressapp/pages/forgot_password_page.dart';
-import 'pages/home_page.dart';
-import 'pages/login_page.dart';
-import 'pages/signup_page.dart';
+import 'package:keepprogressapp/pages/home_page.dart';
+import 'package:keepprogressapp/pages/login_page.dart';
+import 'package:keepprogressapp/pages/signup_page.dart';
+import 'package:keepprogressapp/services/api_service.dart';
+import 'package:keepprogressapp/services/session_manager.dart';
+import 'package:keepprogressapp/pages/dashboard_page.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SessionManager.saveUserId(1);
+
+  // Lecture session locale
+  final userId = await SessionManager.getUserId();
+
+  Widget startPage;
+
+  if (userId != null) {
+    final userData = await ApiService.getUserById(userId);
+
+    if (userData != null) {
+      startPage = DashboardPage(user: userData);
+    } else {
+      await SessionManager.clearUser();
+      startPage = const HomePage();
+    }
+  } else {
+    startPage = const HomePage();
+  }
+
+  runApp(MyApp(startPage: startPage));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Widget startPage;
+
+  const MyApp({super.key, required this.startPage});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +47,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+      home: startPage,
       routes: {
-        '/login': (context) => LoginPage(),
-        '/signup': (context) => SignupPage(),
-        '/forgot_password_page': (context) => ForgotPasswordPage(),
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignupPage(),
+        '/forgot_password_page': (context) => const ForgotPasswordPage(),
       },
     );
   }
