@@ -5,7 +5,7 @@ import 'package:keepprogressapp/models/session_model.dart';
 import 'package:keepprogressapp/models/user_model.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://webhook.site/89c7b01d-0891-4ce5-a2d4-60029a15c040';
+  static const String baseUrl = 'http://localhost/keepprogressapp/api';
 
   ////////////
   //REGISTER//
@@ -16,7 +16,7 @@ class ApiService {
     required String email,
     required String password,
   }) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/register');
 
     final body = jsonEncode({'nom': nom, 'age': age, 'email': email, 'password': password});
 
@@ -42,7 +42,7 @@ class ApiService {
   //LOGIN//
   /////////
   static Future<bool> login(String email, String password) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/login');
 
     try {
       final response = await http.post(
@@ -68,7 +68,7 @@ class ApiService {
   ///FORGOT PASSWORD///
   /////////////////////
   static Future<bool> forgotPassword(String email) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/forgot-password');
 
     try {
       final response = await http.post(
@@ -88,12 +88,13 @@ class ApiService {
   ///GET USER BY ID///
   ////////////////////
   static Future<User?> getUserById(int userId) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/users/$userId');
 
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final userData = jsonDecode(response.body);
+        return User.fromJson(userData);
       } else {
         return null;
       }
@@ -104,7 +105,7 @@ class ApiService {
   }
 
   static Future<List<Session>> fetchSessions(int userId) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/sessions/$userId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -116,17 +117,20 @@ class ApiService {
   }
 
   static Future<bool> addSession(int userId, Session session) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/sessions');
+    final sessionData = session.toJson();
+    sessionData['userId'] = userId; // Add userId to the session data
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(session.toJson()),
+      body: jsonEncode(sessionData),
     );
-    return response.statusCode == 200;
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   static Future<bool> deleteSession(int sessionId) async {
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('$baseUrl/sessions/$sessionId');
     final response = await http.delete(url);
     return response.statusCode == 200;
   }
