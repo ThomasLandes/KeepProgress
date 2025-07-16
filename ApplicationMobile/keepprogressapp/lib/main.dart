@@ -4,16 +4,16 @@ import 'package:keepprogressapp/pages/home_page.dart';
 import 'package:keepprogressapp/pages/login_page.dart';
 import 'package:keepprogressapp/pages/signup_page.dart';
 import 'package:keepprogressapp/services/api_service.dart';
-import 'package:keepprogressapp/services/user_session_manager.dart';
+import 'package:keepprogressapp/services/session_manager.dart';
 import 'package:keepprogressapp/pages/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  UserSessionManager.saveUserId(1);
+  SessionManager.saveUserId(1);
 
   // Lecture session locale
-  final userId = await UserSessionManager.getUserId();
+  final userId = await SessionManager.getUserId();
 
   Widget startPage;
 
@@ -23,7 +23,7 @@ void main() async {
     if (userData != null) {
       startPage = DashboardPage(user: userData);
     } else {
-      await UserSessionManager.clearUser();
+      await SessionManager.clearUser();
       startPage = const HomePage();
     }
   } else {
