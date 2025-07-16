@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:keepprogressapp/models/user_model.dart';
+import 'package:keepprogressapp/services/session_manager.dart';
 import '../services/api_service.dart';
 
 class SignupPage extends StatefulWidget {
@@ -26,23 +28,28 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       try {
-        final success = await ApiService.register(
+        User newUser = User(
           nom: _nomController.text.trim(),
           age: int.parse(_ageController.text.trim()),
           email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
         );
+        (bool, String, String?) result = await ApiService.register(newUser, _passwordController.text.trim());
 
         if (!mounted) return;
 
-        if (success) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Compte créé avec succès')));
-          Navigator.pop(context);
+        if (result.$1 && result.$3 != null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.$2)));
+          }
+          await SessionManager.saveToken(result.$3!);
+          // Vérifier si le widget est toujours monté avant d'utiliser context
+          if (mounted) {
+            // Rediriger vers la page de base qui va vérifier la connexion
+            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+          }
         } else {
           setState(() {
-            _errorMessage = 'Erreur lors de la création du compte';
+            _errorMessage = result.$2;
           });
         }
       } catch (e) {
@@ -86,17 +93,14 @@ class _SignupPageState extends State<SignupPage> {
                 controller: _emailController,
                 decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
                 validator: (value) =>
-                    value != null && value.contains('@') ? null : 'Email invalide',
+                    value != null && value.contains('@') && value.contains('.') ? null : 'Email invalide',
               ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Mot de passe',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Mot de passe', border: OutlineInputBorder()),
                 obscureText: true,
-                validator: (value) => value!.length < 6 ? 'Mot de passe trop court' : null,
+                validator: (value) => value!.length < 8 ? 'Mot de passe trop court' : null,
               ),
               SizedBox(height: 30),
               _isLoading

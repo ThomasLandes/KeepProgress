@@ -1,57 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:keepprogressapp/pages/forgot_password_page.dart';
 import 'package:keepprogressapp/pages/home_page.dart';
 import 'package:keepprogressapp/pages/login_page.dart';
 import 'package:keepprogressapp/pages/signup_page.dart';
-import 'package:keepprogressapp/services/api_service.dart';
-import 'package:keepprogressapp/services/session_manager.dart';
-import 'package:keepprogressapp/pages/dashboard_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SessionManager.saveUserId(1);
-
-  // Lecture session locale
-  final userId = await SessionManager.getUserId();
-
-  Widget startPage;
-
-  if (userId != null) {
-    final userData = await ApiService.getUserById(userId);
-
-    if (userData != null) {
-      startPage = DashboardPage(user: userData);
-    } else {
-      await SessionManager.clearUser();
-      startPage = const HomePage();
-    }
-  } else {
-    startPage = const HomePage();
-  }
-
-  runApp(MyApp(startPage: startPage));
+  // Toujours démarrer par la HomePage qui va gérer la vérification de connexion
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Widget startPage;
-
-  const MyApp({super.key, required this.startPage});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'KeepCool App',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: startPage,
+      theme: ThemeData(primarySwatch: Colors.green, visualDensity: VisualDensity.adaptivePlatformDensity),
+      home: const HomePage(), // Toujours démarrer par la HomePage
       routes: {
+        '/home': (context) => const HomePage(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
-        '/forgot_password_page': (context) => const ForgotPasswordPage(),
       },
     );
   }

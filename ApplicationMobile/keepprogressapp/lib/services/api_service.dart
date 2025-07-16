@@ -2,105 +2,141 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:keepprogressapp/models/user_model.dart';
+import 'package:keepprogressapp/services/session_manager.dart';
 
+/// Service API
+/// Gère toutes les communications avec l'API backend PHP
 class ApiService {
-  static const String baseUrl = 'https://webhook.site/89c7b01d-0891-4ce5-a2d4-60029a15c040';
+  // URL de base de l'API (changer selon votre VPS)
+  static const String baseUrl = 'http://84.235.238.246/keepprogress_api';
 
-  ////////////
-  //REGISTER//
-  ////////////
-  static Future<bool> register({
-    required String nom,
-    required int age,
-    required String email,
-    required String password,
-  }) async {
-    final url = Uri.parse(baseUrl);
+  /// Méthode helper pour obtenir les en-têtes avec authentification
+  static Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await SessionManager.getToken();
+    final headers = {'Content-Type': 'application/json'};
 
-    final body = jsonEncode({'nom': nom, 'age': age, 'email': email, 'password': password});
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+
+    return headers;
+  }
+
+  //////////////////
+  // INSCRIPTION  //
+  //////////////////
+  /// Inscrire un nouvel utilisateur
+  /// Retourne: (succès, message, token)
+  static Future<(bool, String, String?)> register(User user, String password) async {
+    final url = Uri.parse("$baseUrl/auth/register.php");
+
+    // Préparer les données à envoyer
+    final body = jsonEncode({'nom': user.nom, 'age': user.age, 'email': user.email, 'password': password});
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
+      // Envoyer la requête POST à l'API
+      final response = await http.post(url, headers: {'Content-Type': 'application/json'}, body: body);
 
-      debugPrint('Status code: ${response.statusCode}');
-      debugPrint('Body sent: $body');
-      debugPrint('Response body: ${response.body}');
+      String message = "";
+      bool success = false;
+      String? token;
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      // Parser la réponse JSON
+      if (response.headers['content-type']?.contains('application/json') == true) {
+        final data = jsonDecode(response.body);
+        message = data['message'] ?? 'Erreur inconnue';
+        success = data['success'] ?? false;
+        token = data['token'];
+      }
+
+      return (success, message, token);
     } catch (e) {
-      debugPrint('Erreur lors de l\'envoi de la requête: $e');
-      return false;
+      return (false, 'Erreur lors de l\'envoi de la requête: $e', null);
     }
   }
 
-  /////////
-  //LOGIN//
-  /////////
-  static Future<bool> login(String email, String password) async {
-    final url = Uri.parse(baseUrl);
+  ///////////////
+  // CONNEXION //
+  ///////////////
+  /// Connecter un utilisateur existant
+  /// Retourne: (succès, message, token)
+  static Future<(bool, String, String?)> login(String email, String password) async {
+    final url = Uri.parse("$baseUrl/auth/login.php");
 
     try {
+      // Envoyer la requête de connexion
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('Connexion réussie');
-        return true;
-      } else {
-        debugPrint('Échec de la connexion : ${response.body}');
-        return false;
+      String message = "";
+      bool success = false;
+      String? token;
+
+      if (response.headers['content-type']?.contains('application/json') == true) {
+        final data = jsonDecode(response.body);
+        message = data['message'] ?? 'Erreur inconnue';
+        success = data['success'] ?? false;
+        token = data['token'];
       }
+
+      return (success, message, token);
     } catch (e) {
-      debugPrint('Erreur lors de la requête : $e');
+      return (false, 'Erreur lors de la requête : $e', null);
+    }
+  }
+
+  ///////////
+  //LOGOUT///
+  ///////////
+  static Future<bool> logout() async {
+    try {
+      // Clear the stored token
+      await SessionManager.clearToken();
+      return true;
+    } catch (e) {
+      debugPrint("Erreur logout: $e");
       return false;
     }
   }
 
-  /////////////////////
-  ///FORGOT PASSWORD///
-  /////////////////////
-  static Future<bool> forgotPassword(String email) async {
-    final url = Uri.parse(baseUrl);
+  ////////////////////////
+  ///AUTHENTICATED GET///
+  ////////////////////////
+  static Future<http.Response?> authenticatedGet(String endpoint) async {
+    final url = Uri.parse("$baseUrl$endpoint");
+    final headers = await _getAuthHeaders();
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email}),
-      );
-
-      return response.statusCode == 200;
+      final response = await http.get(url, headers: headers);
+      return response;
     } catch (e) {
-      debugPrint("Erreur forgotPassword: $e");
-      return false;
-    }
-  }
-
-  ////////////////////
-  ///GET USER BY ID///
-  ////////////////////
-  static Future<User?> getUserById(int userId) async {
-    return User(nom: "Test", age: 15, email: "test@gmail.fr");
-    final url = Uri.parse(baseUrl);
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        //return jsonDecode(response.body);
-        return null;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      debugPrint('Erreur getUserById: $e');
+      debugPrint("Erreur authenticated GET: $e");
       return null;
     }
+  }
+
+  ////////////////////////
+  ///GET USER PROFILE/////
+  ////////////////////////
+  static Future<User?> getUserProfile() async {
+    final response = await authenticatedGet('/user/profile.php');
+
+    if (response?.statusCode == 200) {
+      try {
+        final data = jsonDecode(response!.body);
+
+        if (data['success'] == true && data['data'] != null && data['data']['user'] != null) {
+          final userData = data['data']['user'];
+          return User(nom: userData['nom'] ?? '', age: userData['age'] ?? 0, email: userData['email'] ?? '');
+        }
+      } catch (e) {
+        debugPrint("Erreur parsing user profile: $e");
+      }
+    }
+
+    return null;
   }
 }
