@@ -31,13 +31,18 @@ void main() {
       }
     });
 
-    test('1. 📝 Inscription - Crée un utilisateur de test', () async {
+    test('\n\n1. 📝 Inscription - Crée un utilisateur de test', () async {
       print('\n[TEST 1/6] Test d\'inscription...');
 
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register.php'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'nom': 'Test User', 'age': 25, 'email': testEmail, 'password': testPassword}),
+        body: jsonEncode({
+          'nom': 'Test User',
+          'age': 25,
+          'email': testEmail,
+          'password': testPassword,
+        }),
       );
 
       expect(response.statusCode, 200);
@@ -50,7 +55,7 @@ void main() {
       print('✅ Inscription réussie - User ID: $userId');
     });
 
-    test('2. 🔐 Connexion - Obtient un token', () async {
+    test('\n\n2. 🔐 Connexion - Obtient un token', () async {
       print('\n[TEST 2/6] Test de connexion...');
 
       final response = await http.post(
@@ -69,7 +74,7 @@ void main() {
       print('✅ Connexion réussie - Token: ${userToken!.substring(0, 30)}...');
     });
 
-    test('3. 👤 Profil - Récupère les données utilisateur', () async {
+    test('\n\n3. 👤 Profil - Récupère les données utilisateur', () async {
       print('\n[TEST 3/6] Test de récupération du profil...');
 
       expect(userToken, isNotNull, reason: 'Token requis pour ce test');
@@ -89,7 +94,7 @@ void main() {
       print('✅ Profil récupéré - Nom: ${data['data']['user']['nom']}');
     });
 
-    test('4. 🚪 Déconnexion - Ferme la session', () async {
+    test('\n\n4. 🚪 Déconnexion - Ferme la session', () async {
       print('\n[TEST 4/6] Test de déconnexion...');
 
       expect(userToken, isNotNull, reason: 'Token requis pour ce test');
@@ -107,7 +112,7 @@ void main() {
       print('✅ Déconnexion réussie');
     });
 
-    test('5. 🔒 Sécurité - Teste le rejet des tokens invalides', () async {
+    test('\n\n5. 🔒 Sécurité - Teste le rejet des tokens invalides', () async {
       print('\n[TEST 5/6] Test de sécurité...');
 
       final response = await http.get(
@@ -126,7 +131,7 @@ void main() {
       print('✅ Token invalide correctement rejeté');
     });
 
-    test('6. 🧹 Final - Vérification de l\'état final', () async {
+    test('\n\n6. 🧹 Final - Vérification de l\'état final', () async {
       print('\n[TEST 6/6] Test final...');
 
       // Test simple pour s'assurer que l'API est toujours accessible
