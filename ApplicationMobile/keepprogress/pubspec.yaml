@@ -43,6 +43,9 @@ dependencies:
   
   # Path provider for file storage
   path_provider: ^2.1.4
+  
+  # Charts library for data visualization
+  fl_chart: ^0.68.0
 
 dev_dependencies:
   flutter_test:

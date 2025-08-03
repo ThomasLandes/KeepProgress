@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:keepprogress/services/session_manager.dart';
 import 'package:keepprogress/services/api_service.dart';
-import 'package:keepprogress/pages/dashboard_page.dart';
+import 'package:keepprogress/main_layout.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,10 +30,10 @@ class _HomePageState extends State<HomePage> {
 
       if (mounted) {
         if (userData != null) {
-          // Rediriger vers le dashboard
+          // Rediriger vers le layout principal avec bottom navigation
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => DashboardPage(user: userData)),
+            MaterialPageRoute(builder: (context) => MainLayout(user: userData)),
           );
           return;
         } else {
@@ -77,17 +77,24 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Bienvenue !', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            Text(
+              'Bienvenue !',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 40),
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/login'),
-              style: ElevatedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
               child: Text('Se connecter'),
             ),
             SizedBox(height: 20),
             OutlinedButton(
               onPressed: () => Navigator.pushNamed(context, '/signup'),
-              style: OutlinedButton.styleFrom(minimumSize: Size(double.infinity, 50)),
+              style: OutlinedButton.styleFrom(
+                minimumSize: Size(double.infinity, 50),
+              ),
               child: Text('S\'inscrire'),
             ),
             SizedBox(height: 40),
@@ -110,16 +117,25 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text('Chemin du fichier:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  'Chemin du fichier:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                                 SelectableText(path),
                                 SizedBox(height: 16),
-                                Text('Contenu:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text(
+                                  'Contenu:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                                 SelectableText(content),
                               ],
                             ),
                           ),
                           actions: [
-                            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Fermer')),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('Fermer'),
+                            ),
                           ],
                         );
                       },
