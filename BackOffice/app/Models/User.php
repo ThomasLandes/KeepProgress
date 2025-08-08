@@ -2,46 +2,64 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasName
 {
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'users';
+    protected $primaryKey = 'user_id';
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
+        'user_name',
+        'user_email',
+        'user_password',
+        'email_verified_at',
+        'isAdmin',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'isAdmin' => 'boolean',
+    ];
+
+    public $timestamps = true;
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Utilisé par Laravel Auth pour récupérer le hash du mot de passe.
      */
-    protected function casts(): array
+    public function getAuthPassword()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->user_password;
+    }
+
+    /**
+     * Optionnel : expose "email" si d'autres packages s'attendent à l'avoir.
+     */
+    public function getEmailAttribute()
+    {
+        return $this->user_email;
+    }
+
+    /**
+     * Filament: contrôle qui peut accéder au panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isAdmin === true;
+    }
+
+    /**
+     * Filament: définit le nom affiché dans le header / menu utilisateur.
+     */
+    public function getFilamentName(): string
+    {
+        return $this->user_name ?: (string) $this->user_email;
     }
 }
