@@ -3,117 +3,68 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ExerciseResource\Pages;
-use App\Filament\Resources\ExerciseResource\RelationManagers;
 use App\Models\Exercise;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Forms\Components\Select;
-
-
 
 class ExerciseResource extends Resource
 {
     protected static ?string $model = Exercise::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-bolt';
+    protected static ?string $navigationLabel = 'Exercises';
+    protected static ?string $modelLabel = 'Exercise';
+    protected static ?string $pluralModelLabel = 'Exercises';
+    protected static ?string $navigationGroup = 'Catalogue';
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->label('Nom de l’exercice')
-                    ->required(),
-
-                Textarea::make('description')
-                    ->label('Description')
-                    ->rows(3),
-
-                Select::make('category')
-                    ->label('Catégorie')
-                    ->options([
-                        'Musculation' => '💪 Musculation',
-                        'Cardio' => '❤️ Cardio',
-                        'HIIT' => '🔥 HIIT',
-                        'Gainage' => '🧘 Gainage',
-                        'Abdos' => '🌀 Abdos',
-                    ])
-                    ->required()
-                    ->native(false), // rend le menu plus stylé dans Filament
-            ]);
+        return $form->schema([
+            Forms\Components\TextInput::make('exercise_name')
+                ->label('Name')
+                ->required()
+                ->maxLength(255)
+                ->unique(ignoreRecord: true),
+            Forms\Components\Textarea::make('exercise_description')
+                ->label('Description')
+                ->rows(5)
+                ->maxLength(1000)
+                ->nullable()
+                ->columnSpanFull(),
+        ])->columns(2);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nom')
+                Tables\Columns\TextColumn::make('exercise_name')
+                    ->label('Name')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('category')
-                    ->label('Catégorie')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'Musculation' => '💪 Musculation',
-                        'Cardio' => '❤️ Cardio',
-                        'HIIT' => '🔥 HIIT',
-                        'Gainage' => '🧘 Gainage',
-                        'Abdos' => '🌀 Abdos',
-                        default => $state,
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Musculation' => 'primary',
-                        'Cardio' => 'success',
-                        'HIIT' => 'danger',
-                        'Gainage' => 'warning',
-                        'Abdos' => 'gray',
-                        default => 'secondary',
-                    })
-                    ->sortable(),
-
-
-                TextColumn::make('created_at')
-                    ->label('Créé le')
-                    ->dateTime('d/m/Y')
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('exercise_description')
+                    ->label('Description')
+                    ->limit(60)      // aperçu
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->since()
+                    ->label('Updated')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('category')
-                    ->label('Filtrer par catégorie')
-                    ->options([
-                        'Musculation' => 'Musculation',
-                        'Cardio' => 'Cardio',
-                        'HIIT' => 'HIIT',
-                        'Gainage' => 'Gainage',
-                        'Abdos' => 'Abdos',
-                    ])
+                // pas de filtre pour le moment
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
@@ -122,6 +73,7 @@ class ExerciseResource extends Resource
             'index' => Pages\ListExercises::route('/'),
             'create' => Pages\CreateExercise::route('/create'),
             'edit' => Pages\EditExercise::route('/{record}/edit'),
+            'view' => Pages\ViewExercise::route('/{record}'),
         ];
     }
 }

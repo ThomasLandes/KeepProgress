@@ -7,10 +7,10 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
-
+use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable implements FilamentUser, HasName
 {
-    use Notifiable;
+    use Notifiable, HasApiTokens;
 
     protected $table = 'users';
     protected $primaryKey = 'user_id';

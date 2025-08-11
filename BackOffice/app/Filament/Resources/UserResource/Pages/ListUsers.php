@@ -13,7 +13,9 @@ class ListUsers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Nouvel utilisateur')
+                ->icon('heroicon-o-plus'),
         ];
     }
 }
