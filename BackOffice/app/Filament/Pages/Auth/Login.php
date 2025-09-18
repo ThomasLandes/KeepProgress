@@ -13,8 +13,8 @@ class Login extends BaseLogin
     protected function getCredentialsFromFormData(array $data): array
     {
         return [
-            'user_email' => $data['email'],   // <-- clé SQL correcte
-            'password'   => $data['password'],// utilisé pour la vérif de hash
+            'user_email' => $data['email'],
+            'password' => $data['password'],
         ];
     }
 }

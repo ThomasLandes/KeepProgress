@@ -28,6 +28,19 @@ class ExerciseResource extends Resource
                 ->required()
                 ->maxLength(255)
                 ->unique(ignoreRecord: true),
+            Forms\Components\Select::make('exercise_body_part')
+                ->label('Groupe musculaire')
+                ->options([
+                    'chest' => 'Poitrine',
+                    'back' => 'Dos',
+                    'legs' => 'Jambes',
+                    'shoulders' => 'Épaules',
+                    'arms' => 'Bras',
+                    'core' => 'Gainage',
+                    'glutes' => 'Fessiers',
+                    'full_body' => 'Full Body',
+                    'other' => 'Autre',
+                ]),
             Forms\Components\Textarea::make('exercise_description')
                 ->label('Description')
                 ->rows(5)
@@ -42,20 +55,40 @@ class ExerciseResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('exercise_name')
-                    ->label('Name')
+                    ->label('Nom')
                     ->searchable()
                     ->sortable(),
+
+                // NEW: badge body part
+                Tables\Columns\TextColumn::make('exercise_body_part')
+                    ->label('Groupe')
+                    ->badge()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('exercise_description')
                     ->label('Description')
-                    ->limit(60)      // aperçu
+                    ->limit(60)
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('updated_at')
                     ->since()
-                    ->label('Updated')
+                    ->label('Maj')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // pas de filtre pour le moment
+                Tables\Filters\SelectFilter::make('exercise_body_part')
+                    ->label('Groupe musculaire')
+                    ->options([
+                        'chest' => 'Poitrine',
+                        'back' => 'Dos',
+                        'legs' => 'Jambes',
+                        'shoulders' => 'Épaules',
+                        'arms' => 'Bras',
+                        'core' => 'Gainage',
+                        'glutes' => 'Fessiers',
+                        'full_body' => 'Full Body',
+                        'other' => 'Autre',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -66,7 +99,6 @@ class ExerciseResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
     public static function getPages(): array
     {
         return [

@@ -35,4 +35,13 @@ class SessionContent extends Model
     {
         return $this->belongsTo(Exercise::class, 'exercise_id', 'exercise_id');
     }
+
+    public function getVolumeAttribute(): ?float
+    {
+        if ($this->sets === null || $this->reps === null || $this->weight === null) {
+            return null;
+        }
+        return (float) ($this->sets * $this->reps * $this->weight);
+    }
+
 }
